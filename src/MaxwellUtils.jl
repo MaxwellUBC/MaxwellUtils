@@ -12,6 +12,8 @@ catch
 end
 
 # ----------------------------------------------------------
+# Old UBC EM frequency domain data format
+
 type Transmitter
    trxpts      # (3,npts) points making up the transmitter
    omega       # 2*pi*frequency
@@ -31,7 +33,38 @@ export Transmitter
 
 # ---------------------------------------------------------
 
+# ---------------------------------------------------------
+# New UBC EM frequency domain data format
+
+type TrxRcv
+   idx::Int         # unique integer index value
+   trxtype::Int     # type of transmitter or receiver
+   trxpts::Array    # (3,npts) points making up the transmitter or receiver
+end # type TrxRcv
+
+type freqinfo
+   idx::Int          # unique integer frequency index
+   omega::Float64    # 2*pi*frequency
+end  # type freqinfo
+
+type datainfo
+   trx_idx::Int
+   frq_idx::Int
+  # omega  # 2*pi*frequency
+   rcv_idx::Int
+   dataid::Int
+   dobs::Array{Float64}   # (2)  observed data
+   sd::Array{Float64}     # (2)  standard deviation
+end  # type datainfo
+
+export TrxRcv, freqinfo, datainfo
+
+# ---------------------------------------------------------
+
+include("readUBCData.jl")
+include("writeUBCData.jl")
 include("readDataFiles.jl")
+include("writeDataFiles.jl")
 include("getTrxOmega.jl")
 include("getSxRxFromData.jl")
 include("getInitialModel.jl")
@@ -41,8 +74,6 @@ include("diagM.jl")
 include("QuickHull.jl")
 
 if hasJOcTree
-  include("readUBCData.jl")
-  include("writeUBCData.jl")
   include("setupMeshParam.jl")
   include("readTopo.jl")
   include("createSmallMeshFromTX.jl")

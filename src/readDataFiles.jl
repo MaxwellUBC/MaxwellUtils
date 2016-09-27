@@ -1,36 +1,4 @@
-
-export TrxRcv, freqinfo, datainfo,
-       readAllFiles, divideData,
-	   readTrxRcvFile, readFrqFile, readDataFile
-
-#-----------------------------------------------------
-
-type TrxRcv
-   idx::Int         # unique integer index value
-   trxtype::Int     # type of transmitter or receiver
-   trxpts::Array    # (3,npts) points making up the transmitter or receiver
-end # type TrxRcv
-
-#-----------------------------------------------------
-
-type freqinfo
-   idx::Int          # unique integer frequency index
-   omega::Float64    # 2*pi*frequency
-end  # type freqinfo
-
-#----------------------------------------------------------
-
-type datainfo
-   trx_idx::Int
-   frq_idx::Int
-  # omega  # 2*pi*frequency
-   rcv_idx::Int
-   dataid::Int
-   dobs::Array{Float64}   # (2)  observed data
-   sd::Array{Float64}     # (2)  standard deviation
-end  # type datainfo
-
-#----------------------------------------------------------
+export readAllFiles, readTrxRcvFile, readFrqFile, readDataFile, divideData
 
 function readAllFiles( datafile::ASCIIString,
                        trxfile::ASCIIString,
@@ -492,3 +460,6 @@ function skipcmnts(f::IOStream)
       end
    end # while true
 end  # function skipcmnts
+
+#---------------------------------------------------------
+
