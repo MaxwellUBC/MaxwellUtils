@@ -72,6 +72,7 @@ include("getDobsWdFromTrx.jl")
 include("arrayUtils.jl")
 include("diagM.jl")
 include("QuickHull.jl")
+include("getEdgeIntegralOfPolygonalChain.jl")
 
 if hasJOcTree
   include("setupMeshParam.jl")
