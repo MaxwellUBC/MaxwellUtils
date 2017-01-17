@@ -33,13 +33,6 @@ n = length(bsz)
 # Write OcTree mesh
 f = open(name, "w")
 
-# Base.@printf(f, " %4d %4d %4d ! # of cells in underlying mesh\n", m1, m2, m3)
-# Base.@printf(f, " %13.6e %13.6e %13.6e ! top corner\n", x1, x2, x3)
-# Base.@printf(f, " %13.6e %13.6e %13.6e ! cell size\n", h1, h2, h3)
-# Base.@printf(f, " %d ! size of octree mesh\n", n)
-# for i = 1:n
-# 	Base.@printf(f, " %4d %4d %4d %4d\n", i1[i], i2[i], i3[i], bsz[i])
-# end
 println(f, m1, " ", m2, " ", m3, " ! # of cells in underlying mesh")
 println(f, x1, " ", x2, " ", x3, " ! top corner")
 println(f, h1, " ", h2, " ", h3, " ! cell size")
@@ -52,8 +45,8 @@ close(f)
 
 end
 
-function exportOcTreeModelRoman(name::AbstractString, mesh::OcTreeMesh, u::Array{Float64,1})
-# exportModel(name::AbstractString,mesh::OcTreeMesh,u::Array{AbstractFloat,1})
+function exportOcTreeModelRoman{T}(name::AbstractString, mesh::OcTreeMesh, u::Array{T,1})
+# exportModel(name::AbstractString,mesh::OcTreeMesh,u::Array{T,1})
 # Export OcTree cell property for use with Roman's Fortran codes.
 
 m1,m2,m3     = mesh.n
@@ -64,15 +57,15 @@ i1,i2,i3,bsz = find3(mesh.S)
 i3 = m3 + 2 .- i3 - bsz
 
 n = nnz(mesh.S)
+
 #S = Array((typeof(i3[1]),typeof(i2[1]),typeof(i1[1])), n)
 #S = cell(n)
 #for i=1:n
 #	S[i] = (i3[i],i2[i],i1[i])
 #end
+#p = sortperm(S)
 
 S = sub2ind( (m1,m2,m3), i1,i2,i3 )
-
-#p = sortperm(S)
 p = sortpermFast(S)[1]
 
 v = u[p]
@@ -80,16 +73,15 @@ v = u[p]
 # Write model vector
 f = open(name, "w")
 for i = 1:n
-#	Base.@printf(f, "%.15e\n", v[i])
 	println(f, v[i])
 end
 close(f)
 
 end
 
-function exportOcTreeModelRoman(name::AbstractString, mesh::OcTreeMesh, u::Array{Int64,1})
-# exportModel(name::AbstractString,mesh::OcTreeMesh,u::Array{Int,1})
-# Export OcTree cell property for use with Roman's Fortran codes.
+function exportOcTreeModelRoman{T}(name::AbstractString, mesh::OcTreeMesh, u::Array{T,2})
+# exportModel(name::AbstractString,mesh::OcTreeMesh,u::Array{T,2})
+# Export OcTree cell properties for use with Roman's Fortran codes.
 
 m1,m2,m3     = mesh.n
 i1,i2,i3,bsz = find3(mesh.S)
@@ -98,25 +90,24 @@ i1,i2,i3,bsz = find3(mesh.S)
 # corner.
 i3 = m3 + 2 .- i3 - bsz
 
-n = nnz(mesh.S)
-#S = Array((typeof(i1[1]),typeof(i2[1]),typeof(i3[1])), n)
+#S = Array((typeof(i3[1]),typeof(i2[1]),typeof(i1[1])), n)
 #S = cell(n)
 #for i=1:n
 #	S[i] = (i3[i],i2[i],i1[i])
 #end
+#p = sortperm(S)
 
 S = sub2ind( (m1,m2,m3), i1,i2,i3 )
-
-#p = sortperm(S)
 p = sortpermFast(S)[1]
+v = u[p,:]
 
-v = u[p]
+m,n = size(v)
 
 # Write model vector
 f = open(name, "w")
-for i = 1:n
-#	Base.@printf(f, "%d\n", v[i])
-	println(f, v[i])
+for i = 1:m
+  line = join(ASCIIString[ string(v[i,j]) for j = 1:n ], " ")
+	println(f, line)
 end
 close(f)
 
