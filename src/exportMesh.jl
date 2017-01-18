@@ -18,15 +18,18 @@ x1,x2,x3     = mesh.x0
 i3 = m3 + 2 .- i3 - bsz
 x3 = x3 + m3 * h3
 
-#S   = sortrows([i3 i2 i1 bsz])
-S = sub2ind( (m1,m2,m3), i1,i2,i3 )
-p = sortpermFast(S)[1]
+# S   = sortrows([i3 i2 i1 bsz])
+# i1  = S[:,3]
+# i2  = S[:,2]
+# i3  = S[:,1]
+# bsz = S[:,4]
 
-
-i1  = i1[p] # S[:,3]
-i2  = i2[p] # S[:,2]
-i3  = i3[p] # S[:,1]
-bsz = bsz[p] # S[:,4]
+S   = sub2ind( (m1,m2,m3), i1,i2,i3 )
+p   = sortpermFast(S)[1]
+i1  = i1[p]
+i2  = i2[p]
+i3  = i3[p]
+bsz = bsz[p]
 
 n = length(bsz)
 
@@ -58,12 +61,11 @@ i3 = m3 + 2 .- i3 - bsz
 
 n = nnz(mesh.S)
 
-#S = Array((typeof(i3[1]),typeof(i2[1]),typeof(i1[1])), n)
-#S = cell(n)
-#for i=1:n
-#	S[i] = (i3[i],i2[i],i1[i])
-#end
-#p = sortperm(S)
+# S = cell(n)
+# for i=1:n
+#   S[i] = (i3[i],i2[i],i1[i])
+# end
+# p = sortperm(S)
 
 S = sub2ind( (m1,m2,m3), i1,i2,i3 )
 p = sortpermFast(S)[1]

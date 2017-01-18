@@ -1,5 +1,8 @@
 export importOcTreeMeshRoman, importOcTreeModelRoman
 
+using jInv.Utils
+
+
 function importOcTreeMeshRoman(meshfile::ASCIIString)
 	
 	# open file (throws error if file doesn't exist)
@@ -57,11 +60,18 @@ function importOcTreeMeshRoman(meshfile::ASCIIString)
 	i3 = m3 + 2 .- i3 - bsz
 	x3 = x3 - m3 * h3
 
-	S   = sortrows([i3 i2 i1 bsz])
-	i1  = S[:,3]
-	i2  = S[:,2]
-	i3  = S[:,1]
-	bsz = S[:,4]
+  # S   = sortrows([i3 i2 i1 bsz])
+  # i1  = S[:,3]
+  # i2  = S[:,2]
+  # i3  = S[:,1]
+  # bsz = S[:,4]
+  
+  S   = sub2ind( (m1,m2,m3), i1,i2,i3 )
+  p   = sortpermFast(S)[1]
+  i1  = i1[p]
+  i2  = i2[p]
+  i3  = i3[p]
+  bsz = bsz[p]
 	
 	# create mesh object
 	S = sparse3(i1,i2,i3,bsz,[m1,m2,m3])
@@ -69,10 +79,10 @@ function importOcTreeMeshRoman(meshfile::ASCIIString)
 	
 end
 
-function importOcTreeModelRoman(modelfile::ASCIIString, mesh::OcTreeMesh)
+function importOcTreeModelRoman(modelfile::ASCIIString, mesh::OcTreeMesh, T::DataType=Float64)
 	
 	# open file (throws error if file doesn't exist)
-    f    = open(modelfile,"r")
+  f = open(modelfile,"r")
 	
 	# read everything
 	s = readlines(f)
@@ -93,24 +103,35 @@ function importOcTreeModelRoman(modelfile::ASCIIString, mesh::OcTreeMesh)
 	i3           = m3 + 2 .- i3 - bsz
 
 	n = nnz(mesh.S)
-	S = cell(n)
-	for i=1:n
-		S[i] = (i3[i],i2[i],i1[i])
-	end
-	p = sortperm(S)
+  
+  # S = cell(n)
+  # for i=1:n
+  #   S[i] = (i3[i],i2[i],i1[i])
+  # end
+  # p = sortperm(S)
+  
+  S = sub2ind( (m1,m2,m3), i1,i2,i3 )
+  p = sortpermFast(S)[1]
 	
 	d = split(s[1])
 	n = length(d)
 	
 	# convert to numbers
-	u = Array{Float64}(m,n)
-	for i = 1:m
-		pi = p[i]
-		d  = split(s[i])
-		for j = 1:n
-		    u[pi,j] = parse(Float64,d[j])
-		end
-	end
+  if n == 1
+    u = Array{T}(m)
+    for i = 1:m
+      u[p[i]] = parse(T,s[i])
+    end
+  else
+  	u = Array{T}(m,n)
+  	for i = 1:m
+  		pi = p[i]
+  		d  = split(s[i])
+  		for j = 1:n
+        u[pi,j] = parse(T,d[j])
+  		end
+  	end
+  end
 	
 	return u
 
